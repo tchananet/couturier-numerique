@@ -36,6 +36,11 @@ export default function OrderActions({ order, clients }: OrderActionsProps) {
     setDialogType(type);
     setOpen(true);
   };
+  
+  const handleCloseDialog = () => {
+    setOpen(false);
+    setDialogType(null);
+  };
 
   if (!order) {
     // Case for "Ajouter une commande" button
@@ -47,7 +52,7 @@ export default function OrderActions({ order, clients }: OrderActionsProps) {
                 Ajouter une commande
             </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-xl">
+        <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
                 <DialogTitle>Créer une nouvelle commande</DialogTitle>
             </DialogHeader>
@@ -60,7 +65,7 @@ export default function OrderActions({ order, clients }: OrderActionsProps) {
   const getDialogContent = () => {
     if (dialogType === "details") {
       return (
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{order.title}</DialogTitle>
             <DialogDescription>
@@ -73,11 +78,11 @@ export default function OrderActions({ order, clients }: OrderActionsProps) {
     }
     if (dialogType === "edit") {
       return (
-        <DialogContent className="sm:max-w-xl">
+        <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Modifier la commande</DialogTitle>
           </DialogHeader>
-          <OrderForm order={order} clients={clients} onFinished={() => setOpen(false)} />
+          <OrderForm order={order} clients={clients} onFinished={handleCloseDialog} />
         </DialogContent>
       );
     }

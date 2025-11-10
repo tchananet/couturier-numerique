@@ -41,7 +41,7 @@ export default function OrderDetails({ order }: OrderDetailsProps) {
                 </div>
                  <div className="space-y-1 sm:col-span-2">
                     <p className="text-sm font-medium text-muted-foreground">Description</p>
-                    <p>{order.description}</p>
+                    <p className="whitespace-pre-wrap">{order.description || "N/A"}</p>
                 </div>
             </div>
 
