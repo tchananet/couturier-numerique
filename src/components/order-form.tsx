@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale";
 import { CalendarIcon, Upload } from "lucide-react"
-import { Client, Order, OrderStatus } from "@/lib/types"
+import { Client, Order, OrderStatus, Pattern } from "@/lib/types"
 
 const orderStatus: OrderStatus[] = ["En attente", "En cours", "Prêt à livrer", "Terminée"];
 
@@ -46,10 +46,11 @@ type OrderFormValues = z.infer<typeof formSchema>;
 interface OrderFormProps {
   order?: Order;
   clients: Client[];
+  patterns: Pattern[];
   onFinished?: () => void;
 }
 
-export default function OrderForm({ order, clients, onFinished }: OrderFormProps) {
+export default function OrderForm({ order, clients, patterns, onFinished }: OrderFormProps) {
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: order ? {
@@ -77,6 +78,18 @@ export default function OrderForm({ order, clients, onFinished }: OrderFormProps
     },
   })
 
+  function handlePatternSelect(patternId: string) {
+    const selectedPattern = patterns.find(p => p.id === patternId);
+    if (selectedPattern) {
+        form.setValue("measurements.tourDePoitrine", selectedPattern.measurements.tourDePoitrine || "");
+        form.setValue("measurements.tourDeTaille", selectedPattern.measurements.tourDeTaille || "");
+        form.setValue("measurements.tourDeHanches", selectedPattern.measurements.tourDeHanches || "");
+        form.setValue("measurements.longueurBras", selectedPattern.measurements.longueurBras || "");
+        form.setValue("measurements.longueurJambe", selectedPattern.measurements.longueurJambe || "");
+        form.setValue("measurements.carrureDos", selectedPattern.measurements.carrureDos || "");
+    }
+  }
+
   function onSubmit(values: OrderFormValues) {
     console.log(values)
     // Here you would typically call an API to save the order
@@ -88,7 +101,7 @@ export default function OrderForm({ order, clients, onFinished }: OrderFormProps
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="pr-6 space-y-6">
+        <div className="pr-1 space-y-6">
             <FormField
             control={form.control}
             name="title"
@@ -108,7 +121,7 @@ export default function OrderForm({ order, clients, onFinished }: OrderFormProps
             render={({ field }) => (
                 <FormItem>
                 <FormLabel>Client</FormLabel>
-                <Select onValuechange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                     <SelectTrigger>
                         <SelectValue placeholder="Sélectionnez un client" />
@@ -152,7 +165,21 @@ export default function OrderForm({ order, clients, onFinished }: OrderFormProps
             </div>
 
             <div>
-                <h3 className="mb-4 text-lg font-medium">Mensurations</h3>
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium">Mensurations</h3>
+                     <Select onValueChange={handlePatternSelect}>
+                        <SelectTrigger className="w-[200px]">
+                            <SelectValue placeholder="Appliquer un patron" />
+                        </SelectTrigger>
+                        <SelectContent>
+                        {patterns.map(pattern => (
+                            <SelectItem key={pattern.id} value={pattern.id}>
+                            {pattern.name}
+                            </SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
+                </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     <FormField
                         control={form.control}
@@ -323,7 +350,7 @@ export default function OrderForm({ order, clients, onFinished }: OrderFormProps
                 />
             </div>
         </div>
-        <div className="pt-6 border-t flex justify-end">
+        <div className="pt-6 border-t flex justify-end sticky bottom-0 bg-background/95 py-3">
             <Button type="submit">{order ? "Enregistrer les modifications" : "Créer la commande"}</Button>
         </div>
       </form>

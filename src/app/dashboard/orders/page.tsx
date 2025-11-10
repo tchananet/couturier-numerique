@@ -1,4 +1,4 @@
-import { getOrders, formatCurrency, getStatusVariant, getClients } from "@/lib/data";
+import { getOrders, formatCurrency, getStatusVariant, getClients, getPatterns } from "@/lib/data";
 import {
   Card,
   CardContent,
@@ -28,6 +28,7 @@ import OrderActions from "@/components/order-actions";
 export default async function OrdersPage() {
   const orders = await getOrders();
   const clients = await getClients();
+  const patterns = await getPatterns();
 
   return (
     <div className="space-y-8">
@@ -54,7 +55,7 @@ export default async function OrdersPage() {
                     </SelectContent>
                 </Select>
             </div>
-            <OrderActions clients={clients} />
+            <OrderActions clients={clients} patterns={patterns} />
           </div>
         </CardHeader>
         <CardContent>
@@ -93,7 +94,7 @@ export default async function OrdersPage() {
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <OrderActions order={order} clients={clients} />
+                        <OrderActions order={order} clients={clients} patterns={patterns} />
                       </TableCell>
                     </TableRow>
                   );

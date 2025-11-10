@@ -11,12 +11,13 @@ const breadcrumbNameMap: { [key: string]: string } = {
   '/dashboard': 'Tableau de bord',
   '/dashboard/orders': 'Commandes',
   '/dashboard/clients': 'Clients',
+  '/dashboard/patterns': 'Patrons',
   '/dashboard/profile': 'Profil',
 };
 
 function ResponsiveSidebarTrigger() {
-    const { isMobile } = useSidebar();
-    if (!isMobile) return null;
+    const { isMobile, openMobile } = useSidebar();
+    if (!isMobile && openMobile) return null;
     return <SidebarTrigger />;
 }
 

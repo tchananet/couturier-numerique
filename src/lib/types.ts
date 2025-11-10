@@ -14,6 +14,12 @@ export type MeasurementSet = {
   measurements: { [key: string]: number };
 };
 
+export type Pattern = {
+  id: string;
+  name: string;
+  measurements: { [key: string]: string };
+}
+
 export type OrderStatus = "En attente" | "En cours" | "Prêt à livrer" | "Terminée";
 
 export type Order = {

@@ -19,16 +19,17 @@ import {
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import OrderDetails from "@/components/order-details";
 import OrderForm from "@/components/order-form";
-import { Client, OrderWithClient } from "@/lib/types";
+import { Client, OrderWithClient, Pattern } from "@/lib/types";
 
 interface OrderActionsProps {
   order?: OrderWithClient;
   clients: Client[];
+  patterns: Pattern[];
 }
 
 type DialogType = "details" | "edit" | null;
 
-export default function OrderActions({ order, clients }: OrderActionsProps) {
+export default function OrderActions({ order, clients, patterns }: OrderActionsProps) {
   const [open, setOpen] = useState(false);
   const [dialogType, setDialogType] = useState<DialogType>(null);
   
@@ -56,7 +57,7 @@ export default function OrderActions({ order, clients }: OrderActionsProps) {
             <DialogHeader>
                 <DialogTitle>Créer une nouvelle commande</DialogTitle>
             </DialogHeader>
-            <OrderForm clients={clients} onFinished={() => setOpen(false)} />
+            <OrderForm clients={clients} patterns={patterns} onFinished={() => setOpen(false)} />
         </DialogContent>
        </Dialog>
     )
@@ -82,7 +83,7 @@ export default function OrderActions({ order, clients }: OrderActionsProps) {
           <DialogHeader>
             <DialogTitle>Modifier la commande</DialogTitle>
           </DialogHeader>
-          <OrderForm order={order} clients={clients} onFinished={handleCloseDialog} />
+          <OrderForm order={order} clients={clients} patterns={patterns} onFinished={handleCloseDialog} />
         </DialogContent>
       );
     }

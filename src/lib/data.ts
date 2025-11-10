@@ -1,4 +1,4 @@
-import type { Client, Order, OrderWithClient, OrderStatus } from './types';
+import type { Client, Order, OrderWithClient, OrderStatus, Pattern } from './types';
 import { addDays, formatISO } from 'date-fns';
 
 export const clients: Client[] = [
@@ -34,6 +34,33 @@ export const clients: Client[] = [
     email: 'lucas.petit@example.com',
     address: '89 Rue du Fil, 31000 Toulouse',
   },
+];
+
+export const patterns: Pattern[] = [
+    {
+      id: 'pat-1',
+      name: 'Robe Standard - Taille 38',
+      measurements: {
+        tourDePoitrine: '88',
+        tourDeTaille: '68',
+        tourDeHanches: '95',
+        longueurBras: '58',
+        longueurJambe: '',
+        carrureDos: '38',
+      },
+    },
+    {
+      id: 'pat-2',
+      name: 'Pantalon Homme - Taille 42',
+      measurements: {
+        tourDePoitrine: '',
+        tourDeTaille: '88',
+        tourDeHanches: '100',
+        longueurBras: '',
+        longueurJambe: '108',
+        carrureDos: '',
+      },
+    },
 ];
 
 const orders: Order[] = [
@@ -116,6 +143,12 @@ export const getClients = async (): Promise<Client[]> => {
   return clients;
 };
 
+export const getPatterns = async (): Promise<Pattern[]> => {
+    // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return patterns;
+};
+
 export const getOrders = async (): Promise<OrderWithClient[]> => {
   // Simulate network delay and data joining
   await new Promise((resolve) => setTimeout(resolve, 500));
@@ -132,9 +165,9 @@ export const getOrders = async (): Promise<OrderWithClient[]> => {
 export function formatCurrency(amount: number) {
     const formatter = new Intl.NumberFormat('fr-FR', {
         style: 'currency',
-        currency: 'XOF',
-        currencyDisplay: 'code'
+        currency: 'XOF', // CFA Franc
     });
+    // Replace XOF with FCFA which is more common
     return formatter.format(amount).replace('XOF', 'FCFA');
 }
 
