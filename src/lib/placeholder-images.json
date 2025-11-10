@@ -1,3 +1,34 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "1",
+      "description": "A vintage sewing machine.",
+      "imageUrl": "https://images.unsplash.com/photo-1578353022142-09264fd64295?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzZXdpbmclMjBtYWNoaW5lfGVufDB8fHx8MTc2MjcxMzIxNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sewing machine"
+    },
+    {
+      "id": "2",
+      "description": "Colorful fabric swatches.",
+      "imageUrl": "https://images.unsplash.com/photo-1668247616362-b76b24d0f741?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxmYWJyaWMlMjBzd2F0Y2h8ZW58MHx8fHwxNzYyNjgyMTA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fabric swatch"
+    },
+    {
+      "id": "3",
+      "description": "A fashion design sketch on a notebook.",
+      "imageUrl": "https://images.unsplash.com/photo-1720031995239-59ea92430cea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmYXNoaW9uJTIwc2tldGNofGVufDB8fHx8MTc2Mjc3NjY5Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fashion sketch"
+    },
+    {
+      "id": "4",
+      "description": "A mannequin with a half-finished dress.",
+      "imageUrl": "https://images.unsplash.com/photo-1725404405061-a21ec9bce21a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYW5uZXF1aW4lMjBkcmVzc3xlbnwwfHx8fDE3NjI2OTgyMDR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mannequin dress"
+    },
+    {
+      "id": "5",
+      "description": "A close-up of a needle and thread on fabric.",
+      "imageUrl": "https://images.unsplash.com/photo-1653220266006-27b87f590eaf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzZXdpbmclMjBuZWVkbGV8ZW58MHx8fHwxNzYyNzc2NjkyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sewing needle"
+    }
+  ]
 }
