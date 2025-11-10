@@ -20,8 +20,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale";
-import { CalendarIcon, Upload } from "lucide-react"
+import { CalendarIcon, Upload, X } from "lucide-react"
 import { Client, Order, OrderStatus, Pattern } from "@/lib/types"
+import { useRef, useState } from "react"
+import Image from "next/image"
 
 const orderStatus: OrderStatus[] = ["En attente", "En cours", "Prêt à livrer", "Terminée"];
 
@@ -39,6 +41,7 @@ const formSchema = z.object({
   "measurements.longueurBras": z.string().optional(),
   "measurements.longueurJambe": z.string().optional(),
   "measurements.carrureDos": z.string().optional(),
+  images: z.array(z.string()).optional(),
 });
 
 type OrderFormValues = z.infer<typeof formSchema>;
@@ -51,6 +54,9 @@ interface OrderFormProps {
 }
 
 export default function OrderForm({ order, clients, patterns, onFinished }: OrderFormProps) {
+  const [imagePreviews, setImagePreviews] = useState<string[]>(order?.images || []);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: order ? {
@@ -62,7 +68,7 @@ export default function OrderForm({ order, clients, patterns, onFinished }: Orde
         "measurements.longueurBras": order.measurements?.longueurBras || "",
         "measurements.longueurJambe": order.measurements?.longueurJambe || "",
         "measurements.carrureDos": order.measurements?.carrureDos || "",
-
+        images: order.images || [],
     } : {
       title: "",
       description: "",
@@ -75,6 +81,7 @@ export default function OrderForm({ order, clients, patterns, onFinished }: Orde
       "measurements.longueurBras": "",
       "measurements.longueurJambe": "",
       "measurements.carrureDos": "",
+      images: [],
     },
   })
 
@@ -88,6 +95,32 @@ export default function OrderForm({ order, clients, patterns, onFinished }: Orde
         form.setValue("measurements.longueurJambe", selectedPattern.measurements.longueurJambe || "");
         form.setValue("measurements.carrureDos", selectedPattern.measurements.carrureDos || "");
     }
+  }
+
+  function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files || []);
+    const newImageUrls: string[] = [];
+
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          newImageUrls.push(reader.result);
+          if (newImageUrls.length === files.length) {
+            const updatedPreviews = [...imagePreviews, ...newImageUrls];
+            setImagePreviews(updatedPreviews);
+            form.setValue('images', updatedPreviews);
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function handleRemoveImage(index: number) {
+    const updatedPreviews = imagePreviews.filter((_, i) => i !== index);
+    setImagePreviews(updatedPreviews);
+    form.setValue('images', updatedPreviews);
   }
 
   function onSubmit(values: OrderFormValues) {
@@ -155,13 +188,36 @@ export default function OrderForm({ order, clients, patterns, onFinished }: Orde
             
             <div className="space-y-2">
                 <FormLabel>Images du modèle</FormLabel>
-                <div className="flex items-center gap-4">
-                    <Button type="button" variant="outline">
-                        <Upload className="mr-2 h-4 w-4" />
-                        Télécharger des images
-                    </Button>
-                    <p className="text-sm text-muted-foreground">Aucun fichier sélectionné.</p>
-                </div>
+                 <Input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={handleImageUpload}
+                    multiple 
+                    accept="image/*"
+                    className="hidden"
+                />
+                <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Télécharger des images
+                </Button>
+                {imagePreviews.length > 0 && (
+                    <div className="flex gap-4 pt-2 overflow-x-auto">
+                        {imagePreviews.map((src, index) => (
+                            <div key={index} className="relative flex-shrink-0">
+                                <Image src={src} alt={`Aperçu ${index + 1}`} width={100} height={100} className="rounded-md object-cover aspect-square" />
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                                    onClick={() => handleRemoveImage(index)}
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             <div>
@@ -357,3 +413,5 @@ export default function OrderForm({ order, clients, patterns, onFinished }: Orde
     </Form>
   )
 }
+
+    
