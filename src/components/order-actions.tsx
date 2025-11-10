@@ -5,10 +5,8 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -17,7 +15,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
-import OrderDetails from "@/components/order-details";
 import OrderForm from "@/components/order-form";
 import { Client, OrderWithClient, Pattern } from "@/lib/types";
 
@@ -25,28 +22,20 @@ interface OrderActionsProps {
   order?: OrderWithClient;
   clients: Client[];
   patterns: Pattern[];
+  onEdit?: () => void;
 }
 
-type DialogType = "details" | "edit" | null;
-
-export default function OrderActions({ order, clients, patterns }: OrderActionsProps) {
-  const [open, setOpen] = useState(false);
-  const [dialogType, setDialogType] = useState<DialogType>(null);
-  
-  const handleOpenDialog = (type: DialogType) => {
-    setDialogType(type);
-    setOpen(true);
-  };
+export default function OrderActions({ order, clients, patterns, onEdit }: OrderActionsProps) {
+  const [dialogOpen, setDialogOpen] = useState(false);
   
   const handleCloseDialog = () => {
-    setOpen(false);
-    setDialogType(null);
+    setDialogOpen(false);
   };
 
   if (!order) {
     // Case for "Ajouter une commande" button
     return (
-       <Dialog open={open} onOpenChange={setOpen}>
+       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
             <Button>
                 <PlusCircle className="mr-2 h-4 w-4" />
@@ -57,61 +46,29 @@ export default function OrderActions({ order, clients, patterns }: OrderActionsP
             <DialogHeader>
                 <DialogTitle>Créer une nouvelle commande</DialogTitle>
             </DialogHeader>
-            <OrderForm clients={clients} patterns={patterns} onFinished={() => setOpen(false)} />
+            <OrderForm clients={clients} patterns={patterns} onFinished={() => setDialogOpen(false)} />
         </DialogContent>
        </Dialog>
     )
   }
 
-  const getDialogContent = () => {
-    if (dialogType === "details") {
-      return (
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{order.title}</DialogTitle>
-            <DialogDescription>
-              Détails de la commande pour {order.clientName}.
-            </DialogDescription>
-          </DialogHeader>
-          <OrderDetails order={order} />
-        </DialogContent>
-      );
-    }
-    if (dialogType === "edit") {
-      return (
-        <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Modifier la commande</DialogTitle>
-          </DialogHeader>
-          <OrderForm order={order} clients={clients} patterns={patterns} onFinished={handleCloseDialog} />
-        </DialogContent>
-      );
-    }
-    return null;
-  };
-
+  // Row actions dropdown
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => handleOpenDialog("details")}>
-            Voir détails
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => handleOpenDialog("edit")}>
-            Modifier
-          </DropdownMenuItem>
-          <DropdownMenuItem>Marquer comme 'Prêt'</DropdownMenuItem>
-          <DropdownMenuItem className="text-destructive">
-            Annuler
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      {getDialogContent()}
-    </Dialog>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onSelect={onEdit}>
+          Modifier
+        </DropdownMenuItem>
+        <DropdownMenuItem>Marquer comme 'Prêt'</DropdownMenuItem>
+        <DropdownMenuItem className="text-destructive">
+          Annuler
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

@@ -1,17 +1,9 @@
-import { getOrders, formatCurrency, getStatusVariant, getClients, getPatterns } from "@/lib/data";
+import { getOrders, getClients, getPatterns } from "@/lib/data";
 import {
   Card,
   CardContent,
   CardHeader,
 } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
@@ -19,11 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PlusCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { format, parseISO } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import OrderActions from "@/components/order-actions";
+import OrdersTable from "@/components/orders-table";
+import { Suspense } from "react";
+import OrdersLoading from "./loading";
 
 export default async function OrdersPage() {
   const orders = await getOrders();
@@ -59,49 +50,9 @@ export default async function OrdersPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Client</TableHead>
-                  <TableHead className="hidden lg:table-cell">Titre</TableHead>
-                  <TableHead className="hidden sm:table-cell">Date de livraison</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead className="hidden md:table-cell text-right">Prix</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {orders.map((order) => {
-                  const balance = order.totalPrice - order.deposit;
-                  return (
-                    <TableRow key={order.id}>
-                      <TableCell>
-                        <div className="font-medium">{order.clientName}</div>
-                        <div className="text-sm text-muted-foreground lg:hidden">{order.title}</div>
-                      </TableCell>
-                       <TableCell className="hidden lg:table-cell">{order.title}</TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        {format(parseISO(order.deliveryDate), 'dd MMMM yyyy', { locale: fr })}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell text-right">
-                        <div>{formatCurrency(order.totalPrice)}</div>
-                        <div className={`text-sm ${balance <= 0 ? 'text-green-600' : 'text-amber-600'}`}>
-                          Solde: {formatCurrency(balance)}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <OrderActions order={order} clients={clients} patterns={patterns} />
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
+          <Suspense fallback={<OrdersLoading/>}>
+            <OrdersTable orders={orders} clients={clients} patterns={patterns} />
+          </Suspense>
         </CardContent>
       </Card>
     </div>
