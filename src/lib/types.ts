@@ -24,7 +24,9 @@ export type OrderStatus = "En attente" | "En cours" | "Prêt à livrer" | "Termi
 
 export type Order = {
   id: string;
-  clientId: string;
+  clientId?: string; // Made optional
+  guestClientName?: string;
+  guestClientContact?: string;
   title: string;
   description: string;
   images: string[];
@@ -38,5 +40,5 @@ export type Order = {
 // Joined data types for easier display
 export type OrderWithClient = Order & {
   clientName: string;
-  clientEmail: string;
+  clientEmail?: string;
 };

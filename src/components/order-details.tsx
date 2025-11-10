@@ -8,7 +8,7 @@ import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { getStatusVariant } from "@/lib/data";
 import { Button } from "./ui/button";
-import { Pencil } from "lucide-react";
+import { Pencil, User, Phone } from "lucide-react";
 
 interface OrderDetailsProps {
     order: OrderWithClient;
@@ -40,8 +40,17 @@ export default function OrderDetails({ order, onEdit }: OrderDetailsProps) {
             <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                        <p className="text-sm font-medium text-muted-foreground">Client</p>
-                        <p>{order.clientName}</p>
+                        <div className="flex items-center gap-2">
+                           <User className="h-4 w-4 text-muted-foreground" />
+                           <p className="text-sm font-medium text-muted-foreground">Client</p>
+                        </div>
+                        <p className="pl-6">{order.clientName}</p>
+                         {order.guestClientContact && (
+                           <div className="flex items-center gap-2 pl-6">
+                                <Phone className="h-3 w-3 text-muted-foreground" />
+                                <p className="text-sm text-muted-foreground">{order.guestClientContact}</p>
+                           </div>
+                        )}
                     </div>
                     <div className="space-y-1">
                         <p className="text-sm font-medium text-muted-foreground">Date de livraison</p>

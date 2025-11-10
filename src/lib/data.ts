@@ -135,6 +135,19 @@ const orders: Order[] = [
     status: 'Terminée',
     measurements: {},
   },
+  {
+    id: 'ord-006',
+    guestClientName: 'Client Pressé',
+    guestClientContact: '0600000000',
+    title: 'Retouche pantalon',
+    description: 'Ourlet sur un pantalon en jean.',
+    images: [],
+    deliveryDate: formatISO(addDays(new Date(), 1)),
+    totalPrice: 20,
+    deposit: 20,
+    status: 'En attente',
+    measurements: {},
+  },
 ];
 
 export const getClients = async (): Promise<Client[]> => {
@@ -153,12 +166,18 @@ export const getOrders = async (): Promise<OrderWithClient[]> => {
   // Simulate network delay and data joining
   await new Promise((resolve) => setTimeout(resolve, 500));
   return orders.map(order => {
-    const client = clients.find(c => c.id === order.clientId);
+    if (order.clientId) {
+      const client = clients.find(c => c.id === order.clientId);
+      return {
+        ...order,
+        clientName: client ? `${client.firstName} ${client.lastName}` : 'Client Inconnu',
+        clientEmail: client ? client.email : '',
+      };
+    }
     return {
       ...order,
-      clientName: client ? `${client.firstName} ${client.lastName}` : 'Client Inconnu',
-      clientEmail: client ? client.email : '',
-    };
+      clientName: order.guestClientName || 'Client Invité',
+    }
   }).sort((a, b) => new Date(b.deliveryDate).getTime() - new Date(a.deliveryDate).getTime());
 };
 

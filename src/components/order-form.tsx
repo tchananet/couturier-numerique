@@ -24,11 +24,14 @@ import { CalendarIcon, Upload, X } from "lucide-react"
 import { Client, Order, OrderStatus, Pattern } from "@/lib/types"
 import { useRef, useState } from "react"
 import Image from "next/image"
+import { Separator } from "./ui/separator"
 
 const orderStatus: OrderStatus[] = ["En attente", "En cours", "Prêt à livrer", "Terminée"];
 
 const formSchema = z.object({
-  clientId: z.string({ required_error: "Le client est requis." }),
+  clientId: z.string().optional(),
+  guestClientName: z.string().optional(),
+  guestClientContact: z.string().optional(),
   title: z.string().min(2, "Le titre doit contenir au moins 2 caractères."),
   description: z.string().optional(),
   deliveryDate: z.date({ required_error: "La date de livraison est requise." }),
@@ -42,6 +45,9 @@ const formSchema = z.object({
   "measurements.longueurJambe": z.string().optional(),
   "measurements.carrureDos": z.string().optional(),
   images: z.array(z.string()).optional(),
+}).refine(data => !!data.clientId || !!data.guestClientName, {
+    message: "Vous devez soit sélectionner un client existant, soit saisir le nom d'un nouveau client.",
+    path: ["guestClientName"],
 });
 
 type OrderFormValues = z.infer<typeof formSchema>;
@@ -84,6 +90,8 @@ export default function OrderForm({ order, clients, patterns, onFinished }: Orde
       images: [],
     },
   })
+
+  const selectedClientId = form.watch("clientId");
 
   function handlePatternSelect(patternId: string) {
     const selectedPattern = patterns.find(p => p.id === patternId);
@@ -148,30 +156,67 @@ export default function OrderForm({ order, clients, patterns, onFinished }: Orde
                 </FormItem>
             )}
             />
+
             <FormField
-            control={form.control}
-            name="clientId"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Client</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez un client" />
-                    </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                    {clients.map(client => (
-                        <SelectItem key={client.id} value={client.id}>
-                        {client.firstName} {client.lastName}
-                        </SelectItem>
-                    ))}
-                    </SelectContent>
-                </Select>
-                <FormMessage />
-                </FormItem>
-            )}
+                control={form.control}
+                name="clientId"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Client Existant (Optionnel)</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Sélectionnez un client" />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                        {clients.map(client => (
+                            <SelectItem key={client.id} value={client.id}>
+                            {client.firstName} {client.lastName}
+                            </SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    </FormItem>
+                )}
             />
+
+            <div className="flex items-center gap-4">
+                <Separator className="flex-1" />
+                <span className="text-xs text-muted-foreground">OU</span>
+                <Separator className="flex-1" />
+            </div>
+
+            <div className="space-y-4">
+                 <FormField
+                    control={form.control}
+                    name="guestClientName"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Nom du nouveau client</FormLabel>
+                        <FormControl>
+                            <Input placeholder="Ex: Aïssatou Ndiaye" {...field} disabled={!!selectedClientId} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="guestClientContact"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Contact du nouveau client</FormLabel>
+                        <FormControl>
+                            <Input placeholder="Téléphone ou email" {...field} disabled={!!selectedClientId} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
+            
             <FormField
             control={form.control}
             name="description"
