@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react";
 import type { Client } from "@/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +11,13 @@ interface ClientDetailsProps {
 }
 
 export default function ClientDetails({ client }: ClientDetailsProps) {
+    const [registrationDate, setRegistrationDate] = useState('');
+
+    useEffect(() => {
+        // This will only run on the client, after hydration
+        setRegistrationDate(new Date().toLocaleDateString('fr-FR'));
+    }, []);
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col items-center gap-4 sm:flex-row">
@@ -22,7 +30,7 @@ export default function ClientDetails({ client }: ClientDetailsProps) {
                 </Avatar>
                 <div className="text-center sm:text-left">
                     <h2 className="text-2xl font-bold">{client.firstName} {client.lastName}</h2>
-                    <p className="text-muted-foreground">Client depuis le {new Date().toLocaleDateString('fr-FR')}</p>
+                    {registrationDate && <p className="text-muted-foreground">Client depuis le {registrationDate}</p>}
                 </div>
             </div>
             <Card>
