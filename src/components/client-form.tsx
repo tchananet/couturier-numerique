@@ -29,9 +29,10 @@ type ClientFormValues = z.infer<typeof formSchema>
 
 interface ClientFormProps {
   client?: Client;
+  onFinished?: () => void;
 }
 
-export default function ClientForm({ client }: ClientFormProps) {
+export default function ClientForm({ client, onFinished }: ClientFormProps) {
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: client || {
@@ -46,6 +47,9 @@ export default function ClientForm({ client }: ClientFormProps) {
   function onSubmit(values: ClientFormValues) {
     console.log(values)
     // Here you would typically call an API to save the client
+    if (onFinished) {
+        onFinished();
+    }
   }
 
   return (

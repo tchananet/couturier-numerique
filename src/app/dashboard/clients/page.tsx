@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from 'react';
 import ClientForm from "@/components/client-form";
 import { getClients } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,9 +33,33 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { MoreHorizontal, PlusCircle, Search } from "lucide-react";
+import type { Client } from '@/lib/types';
+import ClientsLoading from './loading';
 
-export default async function ClientsPage() {
-  const clients = await getClients();
+export default function ClientsPage() {
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | undefined>(undefined);
+
+  useEffect(() => {
+    async function fetchClients() {
+      const fetchedClients = await getClients();
+      setClients(fetchedClients);
+      setLoading(false);
+    }
+    fetchClients();
+  }, []);
+
+  if (loading) {
+    return <ClientsLoading />;
+  }
+  
+  const handleEdit = (client: Client) => {
+    setSelectedClient(client);
+    setOpenEditDialog(true);
+  }
 
   return (
     <div className="space-y-8">
@@ -49,7 +76,7 @@ export default async function ClientsPage() {
                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                <Input placeholder="Rechercher par nom, email..." className="pl-10"/>
             </div>
-            <Dialog>
+            <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
               <DialogTrigger asChild>
                 <Button>
                   <PlusCircle className="mr-2 h-4 w-4" />
@@ -60,7 +87,7 @@ export default async function ClientsPage() {
                 <DialogHeader>
                   <DialogTitle>Ajouter un nouveau client</DialogTitle>
                 </DialogHeader>
-                <ClientForm />
+                <ClientForm onFinished={() => setOpenAddDialog(false)} />
               </DialogContent>
             </Dialog>
           </div>
@@ -97,7 +124,7 @@ export default async function ClientsPage() {
                     <TableCell className="hidden sm:table-cell">{client.phone}</TableCell>
                     <TableCell className="hidden md:table-cell">{client.email}</TableCell>
                     <TableCell className="text-right">
-                       <Dialog>
+                       <Dialog open={openEditDialog && selectedClient?.id === client.id} onOpenChange={setOpenEditDialog}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon">
@@ -106,9 +133,7 @@ export default async function ClientsPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem>Voir détails</DropdownMenuItem>
-                            <DialogTrigger asChild>
-                               <DropdownMenuItem>Modifier</DropdownMenuItem>
-                            </DialogTrigger>
+                            <DropdownMenuItem onSelect={() => handleEdit(client)}>Modifier</DropdownMenuItem>
                             <DropdownMenuItem className="text-destructive">Supprimer</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -116,7 +141,7 @@ export default async function ClientsPage() {
                            <DialogHeader>
                             <DialogTitle>Modifier le client</DialogTitle>
                           </DialogHeader>
-                          <ClientForm client={client} />
+                          <ClientForm client={selectedClient} onFinished={() => setOpenEditDialog(false)} />
                         </DialogContent>
                       </Dialog>
                     </TableCell>
