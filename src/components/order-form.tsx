@@ -20,8 +20,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react"
+import { CalendarIcon, Upload } from "lucide-react"
 import { Client, Order, OrderStatus } from "@/lib/types"
+import { Separator } from "./ui/separator"
 
 const orderStatus: OrderStatus[] = ["En attente", "En cours", "Prêt à livrer", "Terminée"];
 
@@ -33,6 +34,12 @@ const formSchema = z.object({
   totalPrice: z.coerce.number().min(0, "Le prix doit être positif."),
   deposit: z.coerce.number().min(0, "L'acompte doit être positif."),
   status: z.enum(orderStatus),
+  "measurements.tourDePoitrine": z.string().optional(),
+  "measurements.tourDeTaille": z.string().optional(),
+  "measurements.tourDeHanches": z.string().optional(),
+  "measurements.longueurBras": z.string().optional(),
+  "measurements.longueurJambe": z.string().optional(),
+  "measurements.carrureDos": z.string().optional(),
 });
 
 type OrderFormValues = z.infer<typeof formSchema>;
@@ -49,12 +56,25 @@ export default function OrderForm({ order, clients, onFinished }: OrderFormProps
     defaultValues: order ? {
         ...order,
         deliveryDate: new Date(order.deliveryDate),
+        "measurements.tourDePoitrine": order.measurements?.tourDePoitrine || "",
+        "measurements.tourDeTaille": order.measurements?.tourDeTaille || "",
+        "measurements.tourDeHanches": order.measurements?.tourDeHanches || "",
+        "measurements.longueurBras": order.measurements?.longueurBras || "",
+        "measurements.longueurJambe": order.measurements?.longueurJambe || "",
+        "measurements.carrureDos": order.measurements?.carrureDos || "",
+
     } : {
       title: "",
       description: "",
       totalPrice: 0,
       deposit: 0,
-      status: "En attente"
+      status: "En attente",
+      "measurements.tourDePoitrine": "",
+      "measurements.tourDeTaille": "",
+      "measurements.tourDeHanches": "",
+      "measurements.longueurBras": "",
+      "measurements.longueurJambe": "",
+      "measurements.carrureDos": "",
     },
   })
 
@@ -119,6 +139,96 @@ export default function OrderForm({ order, clients, onFinished }: OrderFormProps
             </FormItem>
           )}
         />
+        
+        <div className="space-y-2">
+            <FormLabel>Images du modèle</FormLabel>
+            <div className="flex items-center gap-4">
+                <Button type="button" variant="outline">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Télécharger des images
+                </Button>
+                <p className="text-sm text-muted-foreground">Aucun fichier sélectionné.</p>
+            </div>
+        </div>
+
+        <div>
+            <h3 className="mb-4 text-lg font-medium">Mensurations</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                 <FormField
+                    control={form.control}
+                    name="measurements.tourDePoitrine"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Poitrine (cm)</FormLabel>
+                        <FormControl>
+                            <Input type="text" placeholder="92" {...field} />
+                        </FormControl>
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="measurements.tourDeTaille"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Taille (cm)</FormLabel>
+                        <FormControl>
+                            <Input type="text" placeholder="71" {...field} />
+                        </FormControl>
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="measurements.tourDeHanches"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Hanches (cm)</FormLabel>
+                        <FormControl>
+                            <Input type="text" placeholder="99" {...field} />
+                        </FormControl>
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="measurements.longueurBras"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Lg. bras (cm)</FormLabel>
+                        <FormControl>
+                            <Input type="text" placeholder="60" {...field} />
+                        </FormControl>
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="measurements.longueurJambe"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Lg. jambe (cm)</FormLabel>
+                        <FormControl>
+                            <Input type="text" placeholder="105" {...field} />
+                        </FormControl>
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="measurements.carrureDos"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Carrure dos (cm)</FormLabel>
+                        <FormControl>
+                            <Input type="text" placeholder="41" {...field} />
+                        </FormControl>
+                        </FormItem>
+                    )}
+                />
+            </div>
+        </div>
+
          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
             control={form.control}

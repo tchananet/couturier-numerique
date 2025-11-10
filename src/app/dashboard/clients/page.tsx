@@ -1,10 +1,9 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
-import ClientForm from "@/components/client-form";
 import { getClients } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -18,30 +17,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { MoreHorizontal, PlusCircle, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import type { Client } from '@/lib/types';
 import ClientsLoading from './loading';
+import ClientActions from '@/components/client-actions';
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
-  const [openAddDialog, setOpenAddDialog] = useState(false);
-  const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<Client | undefined>(undefined);
 
   useEffect(() => {
     async function fetchClients() {
@@ -54,11 +38,6 @@ export default function ClientsPage() {
 
   if (loading) {
     return <ClientsLoading />;
-  }
-  
-  const handleEdit = (client: Client) => {
-    setSelectedClient(client);
-    setOpenEditDialog(true);
   }
 
   return (
@@ -76,20 +55,7 @@ export default function ClientsPage() {
                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                <Input placeholder="Rechercher par nom, email..." className="pl-10"/>
             </div>
-            <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
-              <DialogTrigger asChild>
-                <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Ajouter un client
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Ajouter un nouveau client</DialogTitle>
-                </DialogHeader>
-                <ClientForm onFinished={() => setOpenAddDialog(false)} />
-              </DialogContent>
-            </Dialog>
+            <ClientActions />
           </div>
         </CardHeader>
         <CardContent>
@@ -124,26 +90,7 @@ export default function ClientsPage() {
                     <TableCell className="hidden sm:table-cell">{client.phone}</TableCell>
                     <TableCell className="hidden md:table-cell">{client.email}</TableCell>
                     <TableCell className="text-right">
-                       <Dialog open={openEditDialog && selectedClient?.id === client.id} onOpenChange={setOpenEditDialog}>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Voir détails</DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => handleEdit(client)}>Modifier</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">Supprimer</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        <DialogContent>
-                           <DialogHeader>
-                            <DialogTitle>Modifier le client</DialogTitle>
-                          </DialogHeader>
-                          <ClientForm client={selectedClient} onFinished={() => setOpenEditDialog(false)} />
-                        </DialogContent>
-                      </Dialog>
+                      <ClientActions client={client} />
                     </TableCell>
                   </TableRow>
                 ))}

@@ -47,6 +47,14 @@ const orders: Order[] = [
     totalPrice: 450,
     deposit: 200,
     status: 'En cours',
+    measurements: {
+      tourDePoitrine: "92",
+      tourDeTaille: "71",
+      tourDeHanches: "99",
+      longueurBras: "60",
+      longueurJambe: "105",
+      carrureDos: "41",
+    }
   },
   {
     id: 'ord-002',
@@ -58,6 +66,7 @@ const orders: Order[] = [
     totalPrice: 1200,
     deposit: 600,
     status: 'En cours',
+    measurements: {},
   },
   {
     id: 'ord-003',
@@ -69,6 +78,11 @@ const orders: Order[] = [
     totalPrice: 280,
     deposit: 100,
     status: 'Prêt à livrer',
+    measurements: {
+        tourDePoitrine: "88",
+        tourDeTaille: "68",
+        tourDeHanches: "95",
+    }
   },
   {
     id: 'ord-004',
@@ -80,6 +94,7 @@ const orders: Order[] = [
     totalPrice: 850,
     deposit: 400,
     status: 'En attente',
+    measurements: {},
   },
   {
     id: 'ord-005',
@@ -91,6 +106,7 @@ const orders: Order[] = [
     totalPrice: 120,
     deposit: 120,
     status: 'Terminée',
+    measurements: {},
   },
 ];
 
@@ -117,8 +133,9 @@ export function formatCurrency(amount: number) {
     const formatter = new Intl.NumberFormat('fr-FR', {
         style: 'currency',
         currency: 'XOF',
+        currencyDisplay: 'code'
     });
-    return formatter.format(amount);
+    return formatter.format(amount).replace('XOF', 'FCFA');
 }
 
 export function getStatusVariant(status: OrderStatus) {

@@ -26,6 +26,7 @@ export type Order = {
   totalPrice: number;
   deposit: number;
   status: OrderStatus;
+  measurements?: { [key: string]: string };
 };
 
 // Joined data types for easier display
