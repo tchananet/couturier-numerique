@@ -22,9 +22,7 @@ export default function DashboardHeader() {
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:h-16 sm:px-6">
-      <div className="md:hidden">
-        <SidebarTrigger />
-      </div>
+      <SidebarTrigger className="md:hidden" />
       <div className="flex-1">
         <Breadcrumb>
           <BreadcrumbList>
