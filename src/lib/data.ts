@@ -114,7 +114,11 @@ export const getOrders = async (): Promise<OrderWithClient[]> => {
 };
 
 export function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
+    const formatter = new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'XOF',
+    });
+    return formatter.format(amount);
 }
 
 export function getStatusVariant(status: OrderStatus) {

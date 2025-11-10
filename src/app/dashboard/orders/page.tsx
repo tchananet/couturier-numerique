@@ -1,4 +1,4 @@
-import { getOrders, formatCurrency, getStatusVariant } from "@/lib/data";
+import { getOrders, formatCurrency, getStatusVariant, getClients } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,6 +20,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -30,9 +38,12 @@ import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import OrderForm from "@/components/order-form";
+import OrderDetails from "@/components/order-details";
 
 export default async function OrdersPage() {
   const orders = await getOrders();
+  const clients = await getClients();
 
   return (
     <div className="space-y-8">
@@ -59,10 +70,20 @@ export default async function OrdersPage() {
                     </SelectContent>
                 </Select>
             </div>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Ajouter une commande
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Ajouter une commande
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-xl">
+                <DialogHeader>
+                  <DialogTitle>Créer une nouvelle commande</DialogTitle>
+                </DialogHeader>
+                <OrderForm clients={clients} />
+              </DialogContent>
+            </Dialog>
           </div>
         </CardHeader>
         <CardContent>
@@ -101,19 +122,41 @@ export default async function OrdersPage() {
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Voir détails</DropdownMenuItem>
-                            <DropdownMenuItem>Modifier</DropdownMenuItem>
-                             <DropdownMenuItem>Marquer comme 'Prêt'</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">Annuler</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Dialog>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DialogTrigger asChild>
+                                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Voir détails</DropdownMenuItem>
+                                </DialogTrigger>
+                                <DialogTrigger asChild>
+                                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Modifier</DropdownMenuItem>
+                                </DialogTrigger>
+                                <DropdownMenuItem>Marquer comme 'Prêt'</DropdownMenuItem>
+                                <DropdownMenuItem className="text-destructive">Annuler</DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+
+                            {/* This is a bit of a hack to have two different dialog contents for one trigger group */}
+                            {/* A better way would be to create a separate state for each dialog */}
+                            <DialogContent className="sm:max-w-2xl" id={`details-${order.id}`}>
+                                <DialogHeader>
+                                    <DialogTitle>{order.title}</DialogTitle>
+                                    <DialogDescription>Détails de la commande pour {order.clientName}.</DialogDescription>
+                                </DialogHeader>
+                                <OrderDetails order={order} />
+                            </DialogContent>
+                             <DialogContent className="sm:max-w-xl" id={`edit-${order.id}`}>
+                                <DialogHeader>
+                                    <DialogTitle>Modifier la commande</DialogTitle>
+                                </DialogHeader>
+                                <OrderForm order={order} clients={clients} />
+                            </DialogContent>
+                        </Dialog>
                       </TableCell>
                     </TableRow>
                   );
