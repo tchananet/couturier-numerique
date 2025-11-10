@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -61,7 +62,7 @@ export default function OrderActions({ order, clients, patterns, onEdit }: Order
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onSelect={onEdit}>
+        <DropdownMenuItem onSelect={(e) => { e.preventDefault(); onEdit?.(); }}>
           Modifier
         </DropdownMenuItem>
         <DropdownMenuItem>Marquer comme 'Prêt'</DropdownMenuItem>
