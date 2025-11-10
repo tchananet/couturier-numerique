@@ -21,6 +21,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   LayoutGrid,
@@ -38,6 +39,13 @@ const menuItems = [
   { href: "/dashboard/clients", label: "Clients", icon: Users },
 ];
 
+function ResponsiveSidebarTrigger() {
+    const { isMobile } = useSidebar();
+    if (!isMobile) return null;
+    return <SidebarTrigger className="md:hidden" />;
+}
+
+
 export default function DashboardSidebar() {
   const pathname = usePathname();
 
@@ -48,8 +56,8 @@ export default function DashboardSidebar() {
     >
       <SidebarHeader>
         <div className="flex w-full items-center justify-between px-2">
-          <AppLogo className="text-sidebar-foreground" />
-          <SidebarTrigger className="text-sidebar-foreground hover:bg-sidebar-accent" />
+          <AppLogo className="text-sidebar-foreground group-data-[collapsible=icon]:hidden" />
+           <SidebarTrigger className="text-sidebar-foreground hover:bg-sidebar-accent" />
         </div>
       </SidebarHeader>
       <SidebarContent>
