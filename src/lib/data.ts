@@ -41,24 +41,27 @@ export const patterns: Pattern[] = [
       id: 'pat-1',
       name: 'Robe Standard - Taille 38',
       measurements: {
-        tourDePoitrine: '88',
-        tourDeTaille: '68',
-        tourDeHanches: '95',
-        longueurBras: '58',
-        longueurJambe: '',
-        carrureDos: '38',
+        unit: 'cm',
+        standard: {
+          tourDePoitrine: '88',
+          tourDeTaille: '68',
+          tourDeHanches: '95',
+          longueurBras: '58',
+        },
+        custom: []
       },
     },
     {
       id: 'pat-2',
       name: 'Pantalon Homme - Taille 42',
       measurements: {
-        tourDePoitrine: '',
-        tourDeTaille: '88',
-        tourDeHanches: '100',
-        longueurBras: '',
-        longueurJambe: '108',
-        carrureDos: '',
+        unit: 'cm',
+        standard: {
+          tourDeTaille: '88',
+          tourDeHanches: '100',
+          longueurJambe: '108',
+        },
+        custom: [{ name: "Hauteur d'entrejambe", value: '32' }]
       },
     },
 ];
@@ -75,12 +78,15 @@ const orders: Order[] = [
     deposit: 200,
     status: 'En cours',
     measurements: {
-      tourDePoitrine: "92",
-      tourDeTaille: "71",
-      tourDeHanches: "99",
-      longueurBras: "60",
-      longueurJambe: "105",
-      carrureDos: "41",
+        unit: 'cm',
+        standard: {
+            tourDePoitrine: "92",
+            tourDeTaille: "71",
+            tourDeHanches: "99",
+            longueurBras: "60",
+            carrureDos: "41",
+        },
+        custom: [],
     }
   },
   {
@@ -93,7 +99,11 @@ const orders: Order[] = [
     totalPrice: 1200,
     deposit: 600,
     status: 'En cours',
-    measurements: {},
+    measurements: {
+      unit: 'cm',
+      standard: {},
+      custom: [],
+    },
   },
   {
     id: 'ord-003',
@@ -106,9 +116,13 @@ const orders: Order[] = [
     deposit: 100,
     status: 'Prêt à livrer',
     measurements: {
-        tourDePoitrine: "88",
-        tourDeTaille: "68",
-        tourDeHanches: "95",
+        unit: 'cm',
+        standard: {
+            tourDePoitrine: "88",
+            tourDeTaille: "68",
+            tourDeHanches: "95",
+        },
+        custom: [],
     }
   },
   {
@@ -121,7 +135,11 @@ const orders: Order[] = [
     totalPrice: 850,
     deposit: 400,
     status: 'En attente',
-    measurements: {},
+    measurements: {
+        unit: 'cm',
+        standard: {},
+        custom: [],
+    },
   },
   {
     id: 'ord-005',
@@ -133,7 +151,11 @@ const orders: Order[] = [
     totalPrice: 120,
     deposit: 120,
     status: 'Terminée',
-    measurements: {},
+    measurements: {
+        unit: 'cm',
+        standard: {},
+        custom: [],
+    },
   },
   {
     id: 'ord-006',
@@ -146,7 +168,11 @@ const orders: Order[] = [
     totalPrice: 20,
     deposit: 20,
     status: 'En attente',
-    measurements: {},
+    measurements: {
+        unit: 'cm',
+        standard: {},
+        custom: [],
+    },
   },
 ];
 

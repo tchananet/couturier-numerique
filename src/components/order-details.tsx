@@ -9,13 +9,14 @@ import { fr } from 'date-fns/locale';
 import { getStatusVariant } from "@/lib/data";
 import { Button } from "./ui/button";
 import { Pencil, User, Phone } from "lucide-react";
+import { Measurements } from "@/lib/types";
 
 interface OrderDetailsProps {
     order: OrderWithClient;
     onEdit: () => void;
 }
 
-function MeasurementItem({ label, value }: { label: string; value?: string | number }) {
+function MeasurementItem({ label, value, unit }: { label: string; value?: string | number, unit: string }) {
     if (!value) return null;
     const formattedLabel = label
       .replace(/([A-Z])/g, ' $1')
@@ -27,9 +28,32 @@ function MeasurementItem({ label, value }: { label: string; value?: string | num
     return (
         <div>
             <p className="text-sm text-muted-foreground">{formattedLabel}</p>
-            <p className="font-medium">{value} cm</p>
+            <p className="font-medium">{value} {unit}</p>
         </div>
     );
+}
+
+function renderMeasurements(measurements: Measurements) {
+    const { unit, standard, custom } = measurements;
+    const hasStandard = Object.values(standard).some(v => v);
+    const hasCustom = custom && custom.length > 0;
+
+    if (!hasStandard && !hasCustom) {
+        return <p className="text-sm text-muted-foreground text-center py-4">Aucune mensuration spécifiée.</p>;
+    }
+
+    return (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 rounded-lg border p-4">
+            {hasStandard && Object.entries(standard)
+                .filter(([, value]) => value)
+                .map(([key, value]) => (
+                    <MeasurementItem key={key} label={key} value={value} unit={unit} />
+            ))}
+            {hasCustom && custom.map((item, index) => (
+                <MeasurementItem key={index} label={item.name} value={item.value} unit={unit} />
+            ))}
+        </div>
+    )
 }
 
 export default function OrderDetails({ order, onEdit }: OrderDetailsProps) {
@@ -79,16 +103,10 @@ export default function OrderDetails({ order, onEdit }: OrderDetailsProps) {
                     </div>
                 )}
 
-                {order.measurements && Object.values(order.measurements).some(v => v) && (
+                {order.measurements && (
                     <div>
                         <h3 className="text-base font-semibold mb-2 text-foreground">Mensurations</h3>
-                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 rounded-lg border p-4">
-                            {Object.entries(order.measurements)
-                                .filter(([, value]) => value)
-                                .map(([key, value]) => (
-                                    <MeasurementItem key={key} label={key} value={value} />
-                            ))}
-                        </div>
+                        {renderMeasurements(order.measurements)}
                     </div>
                 )}
             </div>

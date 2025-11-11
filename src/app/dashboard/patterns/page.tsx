@@ -60,6 +60,26 @@ export default function PatternsPage() {
     fetchPatterns();
   }, []);
 
+  const renderMeasurements = (pattern: Pattern) => {
+    const { unit, standard, custom } = pattern.measurements;
+    const allMeasurements = [
+        ...Object.entries(standard)
+            .filter(([, value]) => value)
+            .map(([key, value]) => ({ name: key, value })),
+        ...(custom || [])
+    ];
+    
+    return (
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+        {allMeasurements.map(({ name, value }, index) => (
+            <span key={index} className="whitespace-nowrap">
+            {name.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).replace('tour De', 'T.').replace('longueur', 'L.').replace('carrure', 'C.')}: <strong>{value}</strong>{unit}
+            </span>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -97,15 +117,7 @@ export default function PatternsPage() {
                         </div>
                         </TableCell>
                         <TableCell>
-                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                            {Object.entries(pattern.measurements)
-                            .filter(([, value]) => value)
-                            .map(([key, value]) => (
-                                <span key={key} className="whitespace-nowrap">
-                                {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).replace('tour De', 'T.').replace('longueur', 'L.').replace('carrure', 'C.')}: <strong>{value}</strong>cm
-                                </span>
-                            ))}
-                        </div>
+                            {renderMeasurements(pattern)}
                         </TableCell>
                         <TableCell className="text-right">
                             <PatternActions pattern={pattern} />

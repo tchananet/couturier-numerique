@@ -14,11 +14,26 @@ export type MeasurementSet = {
   measurements: { [key: string]: number };
 };
 
+export type MeasurementUnit = "cm" | "in";
+
+export type Measurements = {
+  unit: MeasurementUnit;
+  standard: {
+    tourDePoitrine?: string;
+    tourDeTaille?: string;
+    tourDeHanches?: string;
+    longueurBras?: string;
+    longueurJambe?: string;
+    carrureDos?: string;
+  };
+  custom: Array<{ name: string; value: string }>;
+};
+
 export type Pattern = {
   id: string;
   name: string;
-  measurements: { [key: string]: string };
-}
+  measurements: Measurements;
+};
 
 export type OrderStatus = "En attente" | "En cours" | "Prêt à livrer" | "Terminée";
 
@@ -34,7 +49,7 @@ export type Order = {
   totalPrice: number;
   deposit: number;
   status: OrderStatus;
-  measurements?: { [key: string]: string };
+  measurements: Measurements;
 };
 
 // Joined data types for easier display

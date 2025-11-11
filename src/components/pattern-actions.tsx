@@ -48,7 +48,7 @@ export default function PatternActions({ pattern }: PatternActionsProps) {
                 Ajouter un patron
             </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
                 <DialogTitle>Créer un nouveau patron</DialogTitle>
             </DialogHeader>
@@ -72,7 +72,7 @@ export default function PatternActions({ pattern }: PatternActionsProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DialogTrigger asChild>
-                <DropdownMenuItem>Modifier</DropdownMenuItem>
+                <DropdownMenuItem onSelect={e => e.preventDefault()}>Modifier</DropdownMenuItem>
               </DialogTrigger>
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem className="text-destructive">
@@ -83,7 +83,7 @@ export default function PatternActions({ pattern }: PatternActionsProps) {
           </DropdownMenu>
 
           {/* Edit Dialog */}
-          <DialogContent className="sm:max-w-lg">
+          <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Modifier le patron</DialogTitle>
             </DialogHeader>
