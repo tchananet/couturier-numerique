@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react";
 import { OrderWithClient, formatCurrency } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
