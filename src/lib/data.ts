@@ -73,6 +73,7 @@ const orders: Order[] = [
     title: 'Robe de Soirée Élégance',
     description: 'Robe longue en satin de soie bleu nuit, avec un dos nu et des incrustations de dentelle.',
     images: ['https://picsum.photos/seed/10/600/400', 'https://picsum.photos/seed/11/600/400'],
+    progressImages: ['https://picsum.photos/seed/101/600/400'],
     deliveryDate: formatISO(addDays(new Date(), 5)),
     totalPrice: 450,
     payments: [{ amount: 200, date: subDays(new Date(), 2) }],

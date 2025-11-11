@@ -59,6 +59,7 @@ const formSchema = z.object({
     })).optional(),
   }),
   images: z.array(z.string()).optional(),
+  progressImages: z.array(z.string()).optional(),
 }).refine(data => !!data.clientId || !!data.guestClientName, {
     message: "Vous devez soit sélectionner un client existant, soit saisir le nom d'un nouveau client.",
     path: ["guestClientName"],
@@ -73,10 +74,89 @@ interface OrderFormProps {
   onFinished?: () => void;
 }
 
-export default function OrderForm({ order, clients, patterns, onFinished }: OrderFormProps) {
-  const [imagePreviews, setImagePreviews] = useState<string[]>(order?.images || []);
+const ImageUploader = ({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string[];
+  onChange: (urls: string[]) => void;
+}) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    const newImageUrls: string[] = [];
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          newImageUrls.push(reader.result);
+          if (newImageUrls.length === files.length) {
+            onChange([...value, ...newImageUrls]);
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleRemoveImage = (index: number) => {
+    const updatedPreviews = value.filter((_, i) => i !== index);
+    onChange(updatedPreviews);
+  };
+
+  return (
+    <div className="space-y-2">
+      <FormLabel>{label}</FormLabel>
+      <Input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImageUpload}
+        multiple
+        accept="image/*"
+        className="hidden"
+      />
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <Upload className="mr-2 h-4 w-4" />
+        Télécharger des images
+      </Button>
+      {value.length > 0 && (
+        <div className="flex gap-4 pt-2 overflow-x-auto">
+          {value.map((src, index) => (
+            <div key={index} className="relative flex-shrink-0">
+              <Image
+                src={src}
+                alt={`Aperçu ${index + 1}`}
+                width={100}
+                height={100}
+                className="rounded-md object-cover aspect-square"
+              />
+              <Button
+                type="button"
+                variant="destructive"
+                size="icon"
+                className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                onClick={() => handleRemoveImage(index)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+export default function OrderForm({ order, clients, patterns, onFinished }: OrderFormProps) {
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: order ? {
@@ -95,6 +175,7 @@ export default function OrderForm({ order, clients, patterns, onFinished }: Orde
         custom: [],
       },
       images: [],
+      progressImages: [],
     },
   })
 
@@ -116,32 +197,6 @@ export default function OrderForm({ order, clients, patterns, onFinished }: Orde
     if (selectedPattern) {
         form.setValue("measurements", selectedPattern.measurements);
     }
-  }
-
-  function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files || []);
-    const newImageUrls: string[] = [];
-
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          newImageUrls.push(reader.result);
-          if (newImageUrls.length === files.length) {
-            const updatedPreviews = [...imagePreviews, ...newImageUrls];
-            setImagePreviews(updatedPreviews);
-            form.setValue('images', updatedPreviews);
-          }
-        }
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  function handleRemoveImage(index: number) {
-    const updatedPreviews = imagePreviews.filter((_, i) => i !== index);
-    setImagePreviews(updatedPreviews);
-    form.setValue('images', updatedPreviews);
   }
 
   function onSubmit(values: OrderFormValues) {
@@ -168,11 +223,23 @@ export default function OrderForm({ order, clients, patterns, onFinished }: Orde
             
             <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="Détails de la commande..." {...field} /></FormControl><FormMessage /></FormItem>)} />
             
-            <div className="space-y-2">
-                <FormLabel>Images du modèle</FormLabel>
-                 <Input type="file" ref={fileInputRef} onChange={handleImageUpload} multiple accept="image/*" className="hidden" />
-                <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}><Upload className="mr-2 h-4 w-4" />Télécharger des images</Button>
-                {imagePreviews.length > 0 && (<div className="flex gap-4 pt-2 overflow-x-auto">{imagePreviews.map((src, index) => (<div key={index} className="relative flex-shrink-0"><Image src={src} alt={`Aperçu ${index + 1}`} width={100} height={100} className="rounded-md object-cover aspect-square" /><Button type="button" variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full" onClick={() => handleRemoveImage(index)}><X className="h-4 w-4" /></Button></div>))}</div>)}
+            <div className="space-y-4">
+                <FormField
+                    control={form.control}
+                    name="images"
+                    render={({ field }) => (
+                        <ImageUploader label="Images du modèle" value={field.value || []} onChange={field.onChange} />
+                    )}
+                />
+                 {order && (
+                    <FormField
+                        control={form.control}
+                        name="progressImages"
+                        render={({ field }) => (
+                            <ImageUploader label="Photos de l'avancement" value={field.value || []} onChange={field.onChange} />
+                        )}
+                    />
+                )}
             </div>
 
             <div>

@@ -9,7 +9,7 @@ import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { getStatusVariant } from "@/lib/data";
 import { Button } from "./ui/button";
-import { Calendar, CreditCard, DollarSign, Pencil, User, Phone, Hash } from "lucide-react";
+import { Calendar, CreditCard, DollarSign, Pencil, User, Phone, Hash, Image as ImageIcon, CheckCircle } from "lucide-react";
 import { Measurements } from "@/lib/types";
 
 interface OrderDetailsProps {
@@ -57,13 +57,37 @@ function renderMeasurements(measurements: Measurements) {
     )
 }
 
+function ImageGallery({ title, images }: { title: string; images: string[] }) {
+    if (!images || images.length === 0) {
+        return null;
+    }
+
+    return (
+        <div className="space-y-2">
+            <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                {title === "Photos de l'avancement" ? <CheckCircle className="h-5 w-5 text-green-500" /> : <ImageIcon className="h-5 w-5 text-muted-foreground" />}
+                {title}
+            </h3>
+            <div className="flex gap-4 overflow-x-auto pb-2 -ml-6 -mr-6 px-6">
+                {images.map((img, index) => (
+                    <div key={index} className="flex-shrink-0">
+                        <a href={img} target="_blank" rel="noopener noreferrer">
+                            <Image src={img} alt={`${title} ${index + 1}`} width={150} height={150} className="rounded-md object-cover aspect-square" />
+                        </a>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 export default function OrderDetails({ order, onEdit }: OrderDetailsProps) {
     const totalPaid = order.payments.reduce((sum, p) => sum + p.amount, 0);
     const balance = order.totalPrice - totalPaid;
 
     return (
         <div className="space-y-6">
-            <div className="space-y-4">
+            <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
@@ -79,31 +103,26 @@ export default function OrderDetails({ order, onEdit }: OrderDetailsProps) {
                         )}
                     </div>
                     <div className="space-y-1">
-                        <p className="text-sm font-medium text-muted-foreground">Date de livraison</p>
-                        <p>{format(parseISO(order.deliveryDate), "dd MMMM yyyy", { locale: fr })}</p>
+                        <div className="flex items-center gap-2">
+                           <Calendar className="h-4 w-4 text-muted-foreground" />
+                           <p className="text-sm font-medium text-muted-foreground">Date de livraison</p>
+                        </div>
+                        <p className="pl-6">{format(parseISO(order.deliveryDate), "dd MMMM yyyy", { locale: fr })}</p>
                     </div>
                     <div className="space-y-1">
-                        <p className="text-sm font-medium text-muted-foreground">Statut</p>
-                        <p><Badge variant={getStatusVariant(order.status)}>{order.status}</Badge></p>
+                         <p className="text-sm font-medium text-muted-foreground pl-6">Statut</p>
+                        <p className="pl-6"><Badge variant={getStatusVariant(order.status)}>{order.status}</Badge></p>
                     </div>
                     <div className="space-y-1 sm:col-span-2">
                         <p className="text-sm font-medium text-muted-foreground">Description</p>
                         <p className="whitespace-pre-wrap">{order.description || "N/A"}</p>
                     </div>
                 </div>
-
-                {order.images && order.images.length > 0 && (
-                    <div className="space-y-2">
-                        <p className="text-sm font-medium text-muted-foreground">Images du modèle</p>
-                        <div className="flex gap-4 overflow-x-auto pb-2">
-                            {order.images.map((img, index) => (
-                                <div key={index} className="flex-shrink-0">
-                                    <Image src={img} alt={`Image ${index + 1} for ${order.title}`} width={150} height={150} className="rounded-md object-cover aspect-square" />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                
+                <div className="space-y-4">
+                    <ImageGallery title="Images du modèle" images={order.images} />
+                    <ImageGallery title="Photos de l'avancement" images={order.progressImages || []} />
+                </div>
 
                 {order.measurements && (
                     <div>

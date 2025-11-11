@@ -50,6 +50,7 @@ export type Order = {
   title: string;
   description: string;
   images: string[];
+  progressImages?: string[];
   deliveryDate: string;
   totalPrice: number;
   payments: Payment[];
