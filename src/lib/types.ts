@@ -37,6 +37,11 @@ export type Pattern = {
 
 export type OrderStatus = "En attente" | "En cours" | "Prêt à livrer" | "Terminée";
 
+export type Payment = {
+  amount: number;
+  date: Date;
+};
+
 export type Order = {
   id: string;
   clientId?: string; // Made optional
@@ -47,7 +52,7 @@ export type Order = {
   images: string[];
   deliveryDate: string;
   totalPrice: number;
-  deposit: number;
+  payments: Payment[];
   status: OrderStatus;
   measurements: Measurements;
 };

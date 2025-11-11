@@ -1,5 +1,5 @@
 import type { Client, Order, OrderWithClient, OrderStatus, Pattern } from './types';
-import { addDays, formatISO } from 'date-fns';
+import { addDays, formatISO, subDays } from 'date-fns';
 
 export const clients: Client[] = [
   {
@@ -75,7 +75,7 @@ const orders: Order[] = [
     images: ['https://picsum.photos/seed/10/600/400', 'https://picsum.photos/seed/11/600/400'],
     deliveryDate: formatISO(addDays(new Date(), 5)),
     totalPrice: 450,
-    deposit: 200,
+    payments: [{ amount: 200, date: subDays(new Date(), 2) }],
     status: 'En cours',
     measurements: {
         unit: 'cm',
@@ -97,7 +97,7 @@ const orders: Order[] = [
     images: ['https://picsum.photos/seed/12/600/400'],
     deliveryDate: formatISO(addDays(new Date(), 12)),
     totalPrice: 1200,
-    deposit: 600,
+    payments: [{ amount: 600, date: subDays(new Date(), 1) }],
     status: 'En cours',
     measurements: {
       unit: 'cm',
@@ -113,7 +113,7 @@ const orders: Order[] = [
     images: ['https://picsum.photos/seed/13/600/400', 'https://picsum.photos/seed/14/600/400'],
     deliveryDate: formatISO(addDays(new Date(), -2)),
     totalPrice: 280,
-    deposit: 100,
+    payments: [{ amount: 100, date: subDays(new Date(), 10) }],
     status: 'Prêt à livrer',
     measurements: {
         unit: 'cm',
@@ -133,7 +133,7 @@ const orders: Order[] = [
     images: ['https://picsum.photos/seed/15/600/400'],
     deliveryDate: formatISO(addDays(new Date(), 30)),
     totalPrice: 850,
-    deposit: 400,
+    payments: [{ amount: 400, date: new Date() }],
     status: 'En attente',
     measurements: {
         unit: 'cm',
@@ -149,7 +149,7 @@ const orders: Order[] = [
     images: [],
     deliveryDate: formatISO(addDays(new Date(), -10)),
     totalPrice: 120,
-    deposit: 120,
+    payments: [{ amount: 120, date: subDays(new Date(), 15) }],
     status: 'Terminée',
     measurements: {
         unit: 'cm',
@@ -166,7 +166,7 @@ const orders: Order[] = [
     images: [],
     deliveryDate: formatISO(addDays(new Date(), 1)),
     totalPrice: 20,
-    deposit: 20,
+    payments: [{ amount: 20, date: new Date() }],
     status: 'En attente',
     measurements: {
         unit: 'cm',

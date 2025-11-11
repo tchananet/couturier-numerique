@@ -8,7 +8,7 @@ import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { getStatusVariant } from "@/lib/data";
 import { Button } from "./ui/button";
-import { Pencil, User, Phone } from "lucide-react";
+import { Calendar, CreditCard, DollarSign, Pencil, User, Phone, Hash } from "lucide-react";
 import { Measurements } from "@/lib/types";
 
 interface OrderDetailsProps {
@@ -57,7 +57,8 @@ function renderMeasurements(measurements: Measurements) {
 }
 
 export default function OrderDetails({ order, onEdit }: OrderDetailsProps) {
-    const balance = order.totalPrice - order.deposit;
+    const totalPaid = order.payments.reduce((sum, p) => sum + p.amount, 0);
+    const balance = order.totalPrice - totalPaid;
 
     return (
         <div className="space-y-6">
@@ -112,19 +113,34 @@ export default function OrderDetails({ order, onEdit }: OrderDetailsProps) {
             </div>
             
             <Separator />
+            
+            <div>
+                 <h3 className="text-base font-semibold mb-2 text-foreground">Détails financiers</h3>
+                <div className="grid grid-cols-3 gap-4">
+                    <p className="text-sm font-medium text-muted-foreground col-span-2">Prix total</p>
+                    <p className="font-semibold text-right">{formatCurrency(order.totalPrice)}</p>
 
-            <div className="grid grid-cols-3 gap-4 text-right">
-                <div />
-                <p className="font-medium">Total:</p>
-                <p className="font-semibold">{formatCurrency(order.totalPrice)}</p>
+                    <p className="text-sm font-medium text-muted-foreground col-span-3 pt-2 border-b pb-2">Paiements reçus</p>
+                    {order.payments.length > 0 ? order.payments.map((payment, index) => (
+                        <React.Fragment key={index}>
+                            <div className="text-sm text-muted-foreground col-span-2 flex items-center gap-2">
+                                <CreditCard className="h-4 w-4"/>
+                                <span>Paiement du {format(new Date(payment.date), "dd/MM/yyyy")}</span>
+                            </div>
+                            <p className="text-sm text-right">{formatCurrency(payment.amount)}</p>
+                        </React.Fragment>
+                    )) : (
+                        <p className="text-sm text-muted-foreground col-span-3 text-center">Aucun paiement enregistré</p>
+                    )}
+                    
+                    <div className="col-span-3 border-t my-2" />
 
-                <div />
-                <p className="font-medium">Acompte:</p>
-                <p>{formatCurrency(order.deposit)}</p>
-
-                <div />
-                 <p className="font-medium">Solde restant:</p>
-                <p className={`font-semibold ${balance <= 0 ? 'text-green-600' : 'text-amber-600'}`}>{formatCurrency(balance)}</p>
+                     <p className="font-medium col-span-2">Total versé</p>
+                     <p className="font-medium text-right">{formatCurrency(totalPaid)}</p>
+                    
+                     <p className="font-medium col-span-2">Solde restant</p>
+                    <p className={`font-semibold text-right ${balance <= 0 ? 'text-green-600' : 'text-amber-600'}`}>{formatCurrency(balance)}</p>
+                </div>
             </div>
             
             <Separator />

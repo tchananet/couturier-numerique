@@ -106,7 +106,8 @@ export default function OrdersTable({ orders, clients, patterns }: OrdersTablePr
           </TableHeader>
           <TableBody>
             {orders.map((order) => {
-              const balance = order.totalPrice - order.deposit;
+              const totalPaid = order.payments.reduce((sum, p) => sum + p.amount, 0);
+              const balance = order.totalPrice - totalPaid;
               return (
                 <TableRow key={order.id} onClick={() => handleRowClick(order)} className="cursor-pointer">
                   <TableCell>

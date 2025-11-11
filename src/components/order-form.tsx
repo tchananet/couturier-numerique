@@ -28,6 +28,11 @@ import { Separator } from "./ui/separator"
 
 const orderStatus: OrderStatus[] = ["En attente", "En cours", "Prêt à livrer", "Terminée"];
 
+const paymentSchema = z.object({
+    amount: z.coerce.number().min(0, "Le montant doit être positif."),
+    date: z.date({ required_error: "La date est requise." }),
+});
+
 const formSchema = z.object({
   clientId: z.string().optional(),
   guestClientName: z.string().optional(),
@@ -36,7 +41,7 @@ const formSchema = z.object({
   description: z.string().optional(),
   deliveryDate: z.date({ required_error: "La date de livraison est requise." }),
   totalPrice: z.coerce.number().min(0, "Le prix doit être positif."),
-  deposit: z.coerce.number().min(0, "L'acompte doit être positif."),
+  payments: z.array(paymentSchema),
   status: z.enum(orderStatus),
   measurements: z.object({
     unit: z.enum(["cm", "in"]),
@@ -77,11 +82,12 @@ export default function OrderForm({ order, clients, patterns, onFinished }: Orde
     defaultValues: order ? {
         ...order,
         deliveryDate: new Date(order.deliveryDate),
+        payments: order.payments.map(p => ({...p, date: new Date(p.date)}))
     } : {
       title: "",
       description: "",
       totalPrice: 0,
-      deposit: 0,
+      payments: [],
       status: "En attente",
       measurements: {
         unit: 'cm',
@@ -92,9 +98,14 @@ export default function OrderForm({ order, clients, patterns, onFinished }: Orde
     },
   })
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields: measurementFields, append: appendMeasurement, remove: removeMeasurement } = useFieldArray({
     control: form.control,
     name: "measurements.custom",
+  });
+  
+  const { fields: paymentFields, append: appendPayment, remove: removePayment } = useFieldArray({
+    control: form.control,
+    name: "payments",
   });
   
   const unit = form.watch("measurements.unit");
@@ -186,20 +197,33 @@ export default function OrderForm({ order, clients, patterns, onFinished }: Orde
                 </div>
                  <h4 className="text-sm font-medium mb-2 text-muted-foreground">Personnalisées</h4>
                 <div className="space-y-4">
-                  {fields.map((field, index) => (
+                  {measurementFields.map((field, index) => (
                     <div key={field.id} className="flex items-end gap-2">
                       <FormField control={form.control} name={`measurements.custom.${index}.name`} render={({ field }) => (<FormItem className="flex-1"><FormLabel>Nom</FormLabel><FormControl><Input {...field} placeholder="Ex: Hauteur buste" /></FormControl></FormItem>)} />
                       <FormField control={form.control} name={`measurements.custom.${index}.value`} render={({ field }) => (<FormItem className="w-28"><FormLabel>Valeur ({unit})</FormLabel><FormControl><Input {...field} placeholder="27" /></FormControl></FormItem>)} />
-                      <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      <Button type="button" variant="ghost" size="icon" onClick={() => removeMeasurement(index)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                     </div>
                   ))}
-                  <Button type="button" variant="outline" size="sm" onClick={() => append({ name: "", value: "" })}><PlusCircle className="mr-2 h-4 w-4" />Ajouter une mesure</Button>
+                  <Button type="button" variant="outline" size="sm" onClick={() => appendMeasurement({ name: "", value: "" })}><PlusCircle className="mr-2 h-4 w-4" />Ajouter une mesure</Button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField control={form.control} name="totalPrice" render={({ field }) => (<FormItem><FormLabel>Prix Total</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="deposit" render={({ field }) => (<FormItem><FormLabel>Acompte versé</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            <div className="space-y-4">
+                <FormField control={form.control} name="totalPrice" render={({ field }) => (<FormItem><FormLabel>Prix Total</FormLabel><FormControl><Input type="number" step="any" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                
+                <div>
+                     <h3 className="text-lg font-medium mb-2">Paiements</h3>
+                     <div className="space-y-4">
+                        {paymentFields.map((field, index) => (
+                            <div key={field.id} className="flex items-end gap-2 p-3 border rounded-lg">
+                                <FormField control={form.control} name={`payments.${index}.amount`} render={({ field }) => (<FormItem className="flex-1"><FormLabel>Montant</FormLabel><FormControl><Input type="number" step="any" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name={`payments.${index}.date`} render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Date</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-[240px] pl-3 text-left font-normal", !field.value && "text-muted-foreground")}><_components.Format value={field.value} /><CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
+                                <Button type="button" variant="ghost" size="icon" onClick={() => removePayment(index)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                            </div>
+                        ))}
+                        <Button type="button" variant="outline" size="sm" onClick={() => appendPayment({ amount: 0, date: new Date() })}><PlusCircle className="mr-2 h-4 w-4" />Ajouter un paiement</Button>
+                     </div>
+                </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="deliveryDate" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Date de livraison</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}><_components.Format value={field.value} /><CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={date => date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
