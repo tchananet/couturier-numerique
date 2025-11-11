@@ -24,6 +24,9 @@ import {
 } from "@/components/ui/dialog";
 import OrderDetails from "./order-details";
 import OrderForm from "./order-form";
+import { DropdownMenuItem } from "./ui/dropdown-menu";
+import Link from "next/link";
+import { toast } from "@/hooks/use-toast";
 
 interface OrdersTableProps {
   orders: OrderWithClient[];
@@ -55,9 +58,22 @@ export default function OrdersTable({ orders, clients, patterns }: OrdersTablePr
 
   const handleCloseDialog = () => {
     setDialogOpen(false);
-    setSelectedOrder(null);
-    setDialogType(null);
+    // A small delay to allow the dialog to close before resetting state
+    setTimeout(() => {
+        setSelectedOrder(null);
+        setDialogType(null);
+    }, 150);
   };
+
+  const handleCopyLink = (orderId: string) => {
+    const url = `${window.location.origin}/client/${orderId}`;
+    navigator.clipboard.writeText(url);
+    toast({
+        title: "Lien copié !",
+        description: "Le lien vers le portail client a été copié dans le presse-papiers.",
+    })
+  };
+
 
   const getDialogContent = () => {
     if (!dialogOpen || !selectedOrder) return null;
@@ -128,7 +144,18 @@ export default function OrdersTable({ orders, clients, patterns }: OrdersTablePr
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <OrderActions order={order} clients={clients} patterns={patterns} onEdit={() => handleEditClick(order)} />
+                    <OrderActions order={order} clients={clients} patterns={patterns}>
+                        <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleEditClick(order); }}>
+                            Modifier
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleCopyLink(order.id); }}>
+                            Copier le lien client
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>Marquer comme 'Prêt'</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive">
+                            Annuler
+                        </DropdownMenuItem>
+                    </OrderActions>
                   </TableCell>
                 </TableRow>
               );
@@ -136,7 +163,7 @@ export default function OrdersTable({ orders, clients, patterns }: OrdersTablePr
           </TableBody>
         </Table>
       </div>
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={handleCloseDialog}>
         {getDialogContent()}
       </Dialog>
     </>

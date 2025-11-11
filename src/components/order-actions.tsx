@@ -23,10 +23,10 @@ interface OrderActionsProps {
   order?: OrderWithClient;
   clients: Client[];
   patterns: Pattern[];
-  onEdit?: () => void;
+  children?: React.ReactNode;
 }
 
-export default function OrderActions({ order, clients, patterns, onEdit }: OrderActionsProps) {
+export default function OrderActions({ order, clients, patterns, children }: OrderActionsProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   
   const handleCloseDialog = () => {
@@ -62,13 +62,7 @@ export default function OrderActions({ order, clients, patterns, onEdit }: Order
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onSelect={(e) => { e.preventDefault(); onEdit?.(); }}>
-          Modifier
-        </DropdownMenuItem>
-        <DropdownMenuItem>Marquer comme 'Prêt'</DropdownMenuItem>
-        <DropdownMenuItem className="text-destructive">
-          Annuler
-        </DropdownMenuItem>
+        {children}
       </DropdownMenuContent>
     </DropdownMenu>
   );
